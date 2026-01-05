@@ -7,17 +7,13 @@ from shared.data_manager import get_financial_data
 from shared.metrics import calculate_sharpe_ratio, calculate_max_drawdown, calculate_cumulative_return, calculate_sortino_ratio
 from .visualization import plot_quant_a_performance 
 
-# 1. Momentum Strategy (Trend)
 def calculate_momentum_strategy_performance(price_series, short_window=20, long_window=100):
-    """
-    Trend Following Strategy using SMA Crossover.
-    """
+    """Trend Following Strategy using SMA Crossover."""
     df_strat = price_series.to_frame(name='Close').copy()
     df_strat['Returns'] = df_strat['Close'].pct_change()
     df_strat['Short_SMA'] = df_strat['Close'].rolling(window=short_window).mean()
     df_strat['Long_SMA'] = df_strat['Close'].rolling(window=long_window).mean()
     
-    # Signal: 1 = Buy, 0 = Cash
     df_strat['Signal'] = np.where(df_strat['Short_SMA'] > df_strat['Long_SMA'], 1.0, 0.0)
     
     df_strat['Strategy_Returns'] = df_strat['Returns'] * df_strat['Signal'].shift(1)
@@ -25,14 +21,9 @@ def calculate_momentum_strategy_performance(price_series, short_window=20, long_
     df_strat['Cumulative_Value'] = (1 + df_strat['Strategy_Returns']).cumprod()
     return df_strat['Cumulative_Value']
 
-# 2. ADX Strategy (Trend Strength)
 def calculate_adx_components(df, window=14):
-    """
-    Calculates Average Directional Index (ADX) and its components (+DI and -DI).
-    Requires 'High', 'Low', and 'Close' columns.
-    """
+    """Calculates ADX and its components (+DI and -DI)."""
     
-    # Attempt to adapt if only close series is passed
     if isinstance(df, pd.Series):
         df = df.to_frame(name='Close')
         df['High'] = df['Close']
@@ -40,14 +31,12 @@ def calculate_adx_components(df, window=14):
         
     df['Returns'] = df['Close'].pct_change()
     
-    # 1. True Range (TR) Calculation
     df['Prev_Close'] = df['Close'].shift(1)
     df['TR1'] = df['High'] - df['Low']
     df['TR2'] = np.abs(df['High'] - df['Prev_Close'])
     df['TR3'] = np.abs(df['Low'] - df['Prev_Close'])
     df['TR'] = df[['TR1', 'TR2', 'TR3']].max(axis=1)
 
-    # 2. Directional Movement (+DM and -DM) Calculation
     df['DM_plus'] = np.where((df['High'] > df['High'].shift(1)) & \
                              (df['High'] - df['High'].shift(1) > df['Low'].shift(1) - df['Low']),
                              df['High'] - df['High'].shift(1), 0)
@@ -55,7 +44,6 @@ def calculate_adx_components(df, window=14):
                                (df['Low'].shift(1) - df['Low'] > df['High'] - df['High'].shift(1)),
                                df['Low'].shift(1) - df['Low'], 0)
     
-    # 4. Filter (Wilder's Smoothing Method - Modified EMA)
     def wilder_smooth(series, period):
         return series.ewm(alpha=1/period, adjust=False).mean()
 
@@ -63,41 +51,28 @@ def calculate_adx_components(df, window=14):
     df['DM_plus_Smooth'] = wilder_smooth(df['DM_plus'], window)
     df['DM_minus_Smooth'] = wilder_smooth(df['DM_minus'], window)
     
-    # 5. Directional Indicator Calculation (+DI and -DI)
     df['DI_plus'] = (df['DM_plus_Smooth'] / df['TR_Smooth']) * 100
     df['DI_minus'] = (df['DM_minus_Smooth'] / df['TR_Smooth']) * 100
     
-    # 6. Directional Movement Index (DX) Calculation
     df['DX'] = (np.abs(df['DI_plus'] - df['DI_minus']) / (df['DI_plus'] + df['DI_minus'])) * 100
     
-    # 7. Average Directional Index (ADX) Calculation
     df['ADX'] = wilder_smooth(df['DX'], window)
     
     return df[['Close', 'Returns', 'ADX', 'DI_plus', 'DI_minus']]
 
 def calculate_adx_strategy_performance(price_series, window=14, adx_threshold=25):
-    """
-    Trend Following Strategy based on DI+/DI- crossover filtered by ADX.
-    Buys when DI+ > DI- AND ADX > Threshold.
-    """
+    """Trend Following Strategy based on DI+/DI- crossover filtered by ADX."""
     df_adx = calculate_adx_components(price_series, window)
     
-    # Signal Logic: 1 = Long, 0 = Cash
-    
-    # 1. Strong Trend Condition: ADX > Threshold (e.g., 25)
     trend_filter = df_adx['ADX'] > adx_threshold
     
-    # 2. Buy Condition (Uptrend): DI+ > DI-
     buy_signal = df_adx['DI_plus'] > df_adx['DI_minus']
     
-    # 3. Sell Condition (Downtrend or End of Trend): DI- > DI+
     sell_signal = df_adx['DI_minus'] > df_adx['DI_plus']
-    
-    # Signal: 1 if Strong Trend AND Uptrend, 0 if Downtrend.
     
     conditions = [
         buy_signal & trend_filter,
-        sell_signal # Exit even if ADX is high, if DI- takes over
+        sell_signal
     ]
     choices = [1.0, 0.0] 
     
@@ -110,22 +85,16 @@ def calculate_adx_strategy_performance(price_series, window=14, adx_threshold=25
     
     return df_adx['Cumulative_Value']
 
-# 3. Market Analysis (Kaufman)
 def calculate_kaufman_efficiency_ratio(price_series, period=30):
-    """
-    Kaufman Efficiency Ratio (ER).
-    Measures market noise.
-    """
+    """Kaufman Efficiency Ratio (ER)."""
     change = np.abs(price_series - price_series.shift(period))
     volatility = price_series.diff().abs().rolling(window=period).sum()
     er = change / volatility
     return er.iloc[-1]
 
-# 4. Main Function
 def run_quant_a():
     st.header("Module A: Analyse Univariée & Backtesting")
 
-    # --- INPUTS ---
     col1, col2 = st.columns(2)
     with col1:
         asset = st.text_input("Asset (Ticker)", value="BTC-USD")
@@ -142,7 +111,6 @@ def run_quant_a():
         with col2:
             period = st.selectbox("Periodicity", ["1mo", "6mo", "1y", "2y", "5y", "10y", "max"], index=3)
 
-    # --- DATA ---
     with st.spinner(f"Loading data for {asset}..."):
         data = get_financial_data(asset, period=period)
     

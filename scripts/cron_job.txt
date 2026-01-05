@@ -1,0 +1,11 @@
+# -----------------------------------------------------------------------------
+# Cron Job Configuration
+# -----------------------------------------------------------------------------
+# To automate the daily report generation at 8:00 PM every day.
+#
+# Usage:
+# 1. Open your crontab config: crontab -e
+# 2. Add the line below (make sure to replace /path/to/... with your real paths)
+# -----------------------------------------------------------------------------
+
+0 20 * * * /usr/bin/python3 /home/username/Projet_python/scripts/daily_report.py >> /home/username/Projet_python/reports/cron.log 2>&1

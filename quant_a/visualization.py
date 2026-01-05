@@ -2,14 +2,12 @@ import streamlit as st
 import plotly.graph_objects as go
 import pandas as pd
 
+from shared.plotting import get_theme_layout
+
 def plot_quant_a_performance(strategy_df, forecast_mean=None, conf_int=None, future_dates=None):
-    """
-    Plot Momentum vs Buy & Hold performance.
-    If forecast_mean is provided, extend Buy & Hold curve with ARIMA prediction.
-    """
+    """Plot Momentum vs Buy & Hold performance."""
     fig = go.Figure()
 
-    # 1. Momentum Strategy (Green)
     fig.add_trace(go.Scatter(
         x=strategy_df.index,
         y=strategy_df['Cum_Strat'],
@@ -17,7 +15,6 @@ def plot_quant_a_performance(strategy_df, forecast_mean=None, conf_int=None, fut
         line=dict(color='green', width=2)
     ))
 
-    # 2. Buy & Hold (Gray - Solid line)
     fig.add_trace(go.Scatter(
         x=strategy_df.index,
         y=strategy_df['Cum_BH'],
@@ -25,9 +22,7 @@ def plot_quant_a_performance(strategy_df, forecast_mean=None, conf_int=None, fut
         line=dict(color='gray', width=2)
     ))
 
-    # 3. Add ARIMA Prediction (If enabled)
     if forecast_mean is not None and future_dates is not None:
-        # --- Normalization ---
         last_cum_bh_value = strategy_df['Cum_BH'].iloc[-1]
         last_real_price = strategy_df['Close'].iloc[-1]
         scale_factor = last_cum_bh_value / last_real_price
@@ -36,7 +31,6 @@ def plot_quant_a_performance(strategy_df, forecast_mean=None, conf_int=None, fut
         scaled_upper = conf_int.iloc[:, 1] * scale_factor
         scaled_lower = conf_int.iloc[:, 0] * scale_factor
         
-        # Plot Prediction (Red dashed to differentiate from real)
         fig.add_trace(go.Scatter(
             x=future_dates,
             y=scaled_forecast,
@@ -44,7 +38,6 @@ def plot_quant_a_performance(strategy_df, forecast_mean=None, conf_int=None, fut
             line=dict(color='red', width=2, dash='dash')
         ))
         
-        # Confidence Interval
         fig.add_trace(go.Scatter(
             x=future_dates, y=scaled_upper,
             mode='lines', line=dict(width=0), showlegend=False
@@ -56,5 +49,11 @@ def plot_quant_a_performance(strategy_df, forecast_mean=None, conf_int=None, fut
             name="Confidence Interval"
         ))
 
-    fig.update_layout(title="Performance & Forecast", xaxis_title="Date", yaxis_title="Cumulative Performance (Base 1.0)")
+    theme_layout = get_theme_layout(
+        title="Performance & Forecast", 
+        xaxis_title="Date", 
+        yaxis_title="Cumulative Performance (Base 1.0)"
+    )
+    fig.update_layout(theme_layout)
+    
     st.plotly_chart(fig, width='stretch')
