@@ -1,6 +1,6 @@
 # Quantitative Finance Dashboard
 
-This project is a high-performance web application designed for quantitative asset management. Built with **Python** and **Streamlit**, it provides a robust platform for real-time financial monitoring, strategy backtesting, and portfolio simulation. The system is designed to run 24/7 on a Linux architecture, ensuring continuous data availability.
+This project is a web application designed for quantitative asset management. Built with **Python** and **Streamlit**, it provides a robust platform for real-time financial monitoring, strategy backtesting, and portfolio simulation. The system is designed to run 24/7 on a Linux architecture, ensuring continuous data availability.
 
 ## Project Objectives
 
