@@ -5,12 +5,11 @@ from quant_b import run_quant_b
 from shared.data_manager import get_financial_data
 import time
 from streamlit_autorefresh import st_autorefresh
+from shared.plotting import apply_quant_b_overrides
 
 # Refresh every 5 minutes (300000 ms)
 count = st_autorefresh(interval=300000, key="datarefresh")
 
-# 1. Configuration (MUST BE THE FIRST LINE)
-# 1. Configuration (MUST BE THE FIRST LINE)
 st.set_page_config(
     page_title="Quant Backtesting Platform",
     page_icon="📈",
@@ -19,7 +18,7 @@ st.set_page_config(
 )
 
 # Apply global styling
-# 2. Sidebar
+
 with st.sidebar:
     st.title("Quant Platform")
     
@@ -167,7 +166,7 @@ def display_native_ticker():
 
 # --- TICKER CALL ---
 display_native_ticker()
-
+apply_quant_b_overrides()
 # 3. Main Content
 if selected_module == "Univariate Analysis":
     st.title("Univariate Analysis")
