@@ -73,7 +73,7 @@ Quant A and Quant B modules and configure the analysis parameters.
     ├── daily_report.py     # Automated report generation script
     └── cron_job.txt        # Cron configuration for automated daily financial report
 
----
+```
 
 ## Quant A – Single Asset Analysis
 
