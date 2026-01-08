@@ -74,6 +74,7 @@ Quant A and Quant B modules and configure the analysis parameters.
     └── cron_job.txt        # Cron configuration for automated daily financial report
 
 ```
+---
 
 ## Quant A – Single Asset Analysis
 
@@ -119,27 +120,24 @@ A **daily financial report** is automatically generated for the portfolio
 - Maximum drawdown
 
 ### Script
+```bash
 scripts/daily_report.py
-
-csharp
-Copier le code
+```
 
 The report is stored locally on the Linux VM in a `reports/` directory with the format:
+```bash
 daily_report_YYYY-MM-DD.txt
-
-yaml
-Copier le code
-
+```
 ---
 
 ## Cron Configuration
 
-The daily report is generated at a **fixed time (8:00 PM)** using a cron job.
+The daily report is generated at a **fixed time (8:00 PM)** (Paris Hour) using a cron job.
 
 Example configuration on the Linux VM:
 ```bash
 0 20 * * * /usr/bin/python3 /path/to/project/scripts/daily_report.py
-
+```
 The cron configuration and script are included in the repository.
 
 ## Authors
