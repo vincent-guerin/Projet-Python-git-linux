@@ -1,0 +1,53 @@
+# ============================================================
+# Cron Job Configuration – Daily Financial Report
+# ============================================================
+#
+# This file explains how to configure a cron job in order to
+# automatically execute the daily financial report script.
+#
+# The cron job is intended to be installed and executed on the
+# Linux virtual machine used for the project.
+#
+
+# ------------------------------------------------------------
+# Step 1 – Open the crontab editor
+# ------------------------------------------------------------
+# Run the following command in the terminal on the Linux VM:
+#
+#     crontab -e
+#
+
+# ------------------------------------------------------------
+# Step 2 – Cron job definition
+# ------------------------------------------------------------
+# The following cron expression schedules the script to run
+# every day at 19:00 (7:00 PM) in London (20:00 in Paris).
+#
+# Format:
+# ┌──────── minute (0 - 59)
+# │ ┌────── hour (0 - 23)
+# │ │ ┌──── day of month (1 - 31)
+# │ │ │ ┌── month (1 - 12)
+# │ │ │ │ ┌─ day of week (0 - 6, Sunday = 0)
+# │ │ │ │ │
+# │ │ │ │ │
+# 00 19 * * *  command_to_execute
+#
+
+00 19 * * * cd /Projet-Python-git-linux && /usr/bin/python3 scripts/daily_report.py >> reports/cron_log.txt 2>&1
+
+# ------------------------------------------------------------
+# Step 3 – Output handling
+# ------------------------------------------------------------
+# Standard output and errors are redirected to the file:
+#
+#     reports/cron_log.txt
+#
+# This allows monitoring of the execution and debugging if
+# the script fails.
+
+# ------------------------------------------------------------
+# Step 4 – Save and exit
+# ------------------------------------------------------------
+# Save the file and exit the editor. The cron job will then
+# run automatically every day at the scheduled time.

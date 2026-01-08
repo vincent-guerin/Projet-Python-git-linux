@@ -1,59 +1,149 @@
 # Quantitative Finance Dashboard
 
-This project is a web application designed for quantitative asset management. Built with **Python** and **Streamlit**, it provides a robust platform for real-time financial monitoring, strategy backtesting, and portfolio simulation. The system is designed to run 24/7 on a Linux architecture, ensuring continuous data availability.
+This project is a **Streamlit-based quantitative finance dashboard**
+developed in Python.
+
+It provides two main modules:
+- **Quant A**: single asset analysis
+- **Quant B**: portfolio management
+
+The project also includes an **automated daily financial report**
+generated via a Linux cron job.
+
+---
 
 ## Project Objectives
 
-The primary goal is to support fundamental and quantitative portfolio managers with advanced tools:
-- **Real-Time Data**: Live fetching of market data for equities, forex, and cryptocurrencies.
-- **Univariate Analysis (Quant A)**: Deep dive into single-asset performance, applying trend-following strategies and forecasting models.
-- **Portfolio Optimization (Quant B)**: Construction of efficient portfolios using Markowitz theory and risk management metrics (Integration pending).
-- **Automation**: Fully automated workflows including data refreshing and daily reporting via Cron jobs.
+The objectives of this project are to:
+- Analyse financial market data using quantitative methods
+- Perform **single-asset analysis** (Quant A)
+- Perform **multi-asset portfolio analysis** (Quant B)
+- Visualise financial data through an interactive dashboard
+- Automate daily reporting using a cron job
+
+---
 
 ## Technology Stack
 
-- **Core Framework**: Python 3.10+, Streamlit
-- **Data Manipulation**: Pandas, NumPy
-- **Visualization**: Plotly Interactive Charts
-- **Financial Data**: Yahoo Finance API (`yfinance`)
-- **Analysis**: Statsmodels (ARIMA), Scipy
-- **Deployment**: Linux (Ubuntu), Systemd, Crontab
+- **Language**: Python 3
+- **Framework**: Streamlit
+- **Data processing**: Pandas, NumPy
+- **Visualisation**: Plotly
+- **Financial data**: Yahoo Finance (yfinance)
+- **Automation**: Linux cron
 
-## Key Features
+---
 
-### 1. Interactive Dashboard
-- **Dark/Light Mode**: The UI automatically adapts, featuring a custom-built dark mode for low-light environments (inspired by professional trading terminals).
-- **Responsive Design**: optimized for various screen sizes using Streamlit's wide layout.
+## Dashboard Overview
 
-### 2. Module A: Single Asset Analysis
-Focuses on individual instrument performance.
-- **Momentum Strategy**: Implements a dual Moving Average Crossover system (Short/Long MA).
-- **ADX Trend Strategy**: Uses the Average Directional Index to filter strong trends and Directional Indicators (DI+/DI-) for entry signals.
-- **Forecasting**: An integrated ARIMA (AutoRegressive Integrated Moving Average) model provides 7-day price forecasts with confidence intervals.
-- **Performance Metrics**: Automatically calculates Sharpe Ratio, Sortino Ratio, Max Drawdown, and Cumulative Returns compared to a Buy & Hold benchmark.
+The dashboard is accessible at:
 
-### 3. Automated Reporting
-- **PDF Reports**: A dedicated script generates daily summaries of market activity.
-- **Scheduling**: Configured via Linux `cron` to run every evening at 11:00 PM, ensuring managers have the latest data before the next trading day.
+http://34.56.136.238:8501/
+
+It provides an interactive interface allowing the user to switch between
+Quant A and Quant B modules and configure the analysis parameters.
+
+---
 
 ## Project Structure
 
-The project follows a modular architecture to ensure scalability and maintain separation of concerns:
-
 ```bash
 .
-├── main.py                # Application entry point & Navigation
-├── quant_a/               # [Module A] Single Asset Logic
-│   ├── analysis_quanta.py # Strategy logic (Momentum, ADX, ARIMA)
-│   └── visualization.py   # Plotly charting functions for Module A
-├── quant_b/               # [Module B] Portfolio Logic
-│   ├── analysis_quantb.py # Markowitz optimization & metrics
-│   └── visualization.py   # Plotly charting for portfolios
-├── shared/                # Shared Utilities & UI Components
-│   ├── data_manager.py    # Centralized data fetching & caching
-│   ├── metrics.py         # Financial calculations (Sharpe, Volatility)
-│   ├── plotting.py        # Theme-aware plotting overrides
-│   └── ui.py              # CSS styling and theme management
-├── README.md              # Project documentation
-└── requirements.txt       # Project dependencies
-```
+├── main.py                 # Streamlit application entry point
+├── requirements.txt        # Python dependencies
+├── instructions.txt        # Project guidelines/notes
+├── .gitignore              # Files excluded from Git
+├── README.md               # Project documentation
+├── quant_a/                # Module A: Single Asset Analysis
+│   ├── __init__.py
+│   ├── analysis_quanta.py  # Indicators and metrics logic
+│   └── visualization.py    # Visualizations for Quant A
+├── quant_b/                # Module B: Portfolio Management
+│   ├── __init__.py
+│   ├── analysis_quantb.py  # Portfolio analysis and metrics
+│   └── visualization.py    # Portfolio-specific charts
+├── shared/                 # Shared utilities and configuration
+│   ├── __init__.py
+│   ├── config.py           # Global settings and configuration
+│   ├── data_manager.py     # Data fetching and API management
+│   ├── metrics.py          # Financial metric formulas
+│   ├── plotting.py         # Shared plotting utilities
+│   └── ui.py               # Shared UI components for Streamlit
+└── scripts/
+    ├── daily_report.py     # Automated report generation script
+    └── cron_job.txt        # Cron configuration for automated daily financial report
+
+---
+
+## Quant A – Single Asset Analysis
+
+Quant A focuses on the analysis of **one financial asset**.
+
+Implemented features include:
+- Price evolution and returns
+- Volatility analysis
+- Basic financial indicators
+- Visual exploration of market behaviour
+
+This module serves as an introduction to quantitative analysis techniques
+applied to a single asset.
+
+---
+
+## Quant B – Portfolio Management
+
+Quant B focuses on **multi-asset portfolio analysis** (minimum 3 assets).
+
+Implemented features include:
+- Portfolio returns
+- Annualised volatility
+- Open and close prices
+- Maximum drawdown
+- Correlation matrix
+- Interactive visualisations using Plotly
+
+Quant B extends the project from single-asset analysis to portfolio-level
+risk and performance evaluation.
+
+---
+
+## Daily Financial Report (Cron Job)
+
+A **daily financial report** is automatically generated for the portfolio
+(Quant B).
+
+### Metrics included
+- Portfolio volatility
+- Open price
+- Close price
+- Maximum drawdown
+
+### Script
+scripts/daily_report.py
+
+csharp
+Copier le code
+
+The report is stored locally on the Linux VM in a `reports/` directory with the format:
+daily_report_YYYY-MM-DD.txt
+
+yaml
+Copier le code
+
+---
+
+## Cron Configuration
+
+The daily report is generated at a **fixed time (8:00 PM)** using a cron job.
+
+Example configuration on the Linux VM:
+```bash
+0 20 * * * /usr/bin/python3 /path/to/project/scripts/daily_report.py
+
+The cron configuration and script are included in the repository.
+
+## Authors
+
+- Vincent Guerin  
+- Valentin Gempp 
+— IF3
