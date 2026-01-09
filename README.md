@@ -132,11 +132,11 @@ daily_report_YYYY-MM-DD.txt
 
 ## Cron Configuration
 
-The daily report is generated at a **fixed time (8:00 PM)** (Paris Hour) using a cron job.
+The daily report is generated at a **fixed time (7:00 PM)** (London Hour) using a cron job.
 
 Example configuration on the Linux VM:
 ```bash
-0 20 * * * /usr/bin/python3 /path/to/project/scripts/daily_report.py
+00 19 * * * cd /Projet-Python-git-linux && /usr/bin/python3 scripts/daily_report.py >> reports/cron_log.txt 2>&1
 ```
 The cron configuration and script are included in the repository.
 
@@ -144,4 +144,4 @@ The cron configuration and script are included in the repository.
 
 - Vincent Guerin  
 - Valentin Gempp 
-— IF3
+- IF3
